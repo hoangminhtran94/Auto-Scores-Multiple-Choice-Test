@@ -6,6 +6,7 @@ from math import ceil, floor
 from model import CNN_Model
 from collections import defaultdict
 import pandas as pd
+import random
 
 
 def get_x(s):
@@ -90,16 +91,19 @@ def process_ans_blocks(ans_blocks):
     biggest_block = max(
         ans_blocks, key=lambda block: block[1][2] * block[1][3])
     ans_block_img = np.array(biggest_block[0])
-
+    # image_path = os.path.join(
+    #     "./output", f"answer{random.randint(1,50)}.png")
+    # cv2.imwrite(image_path, ans_block_img)
     ans_block_img = ans_block_img[2:ans_block_img.shape[0]-2, :]
     offset2 = floor(ans_block_img.shape[0] / 25)
     width = ceil(ans_block_img.shape[1])
+    print(width)
     # Loop over each line in the answer block
     for j in range(25):
         answer_img = ans_block_img[j * offset2:(j + 1) * offset2, :]
         list_answers.append(answer_img)
 
-    return list_answers, width,
+    return list_answers, width
 
 
 def process_list_ans(filename, list_answers, width):
@@ -111,11 +115,14 @@ def process_list_ans(filename, list_answers, width):
         index = index+1
         # image_path = os.path.join("./output", f"answer{index}.png")
         # cv2.imwrite(image_path, answer_img)
-        # # index = index+1
         for i in range(5):
             bubble_choice_raw = answer_img[:, start +
                                            i * offset:start + (i + 1) * offset]
-            bubble_choice = bubble_choice_raw[:, 75:-75]
+            # image_path = os.path.join(
+            #     "./output", f"answer{filename}{index}{i}.png")
+            # cv2.imwrite(image_path, bubble_choice_raw)
+            box_offset = floor(width/12 - 12/592*width)
+            bubble_choice = bubble_choice_raw[:, box_offset:-box_offset]
 
             bubble_choice = cv2.threshold(
                 bubble_choice, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
